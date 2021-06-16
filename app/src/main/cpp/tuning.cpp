@@ -234,6 +234,11 @@ void drawTuner2(NVGcontext* context)
     nvgStroke(context);
 }
 
+void drawWaterfallGraph(NVGcontext* vg)
+{
+
+}
+
 // draw tuner bar
 void drawTuner(NVGcontext* vg)
 {

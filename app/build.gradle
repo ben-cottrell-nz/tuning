@@ -18,7 +18,7 @@ android {
                 cppFlags '-DANDROID_STL=c++_static -std=c++17'
             }
         }
-    }
+    } 
 
     buildTypes {
         release {

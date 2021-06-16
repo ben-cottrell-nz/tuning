@@ -27,17 +27,6 @@ public class MicRecorder extends Thread {
                     AudioFormat.ENCODING_PCM_16BIT,
                     BUFFER_SIZE*2);
             recorder.setPositionNotificationPeriod(BUFFER_SIZE);
-//            recorder.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
-//                @Override
-//                public void onMarkerReached(AudioRecord audioRecord) {
-//
-//                }
-//
-//                @Override
-//                public void onPeriodicNotification(AudioRecord audioRecord) {
-//
-//                }
-//            });
             if (recorder.getState() == AudioRecord.STATE_UNINITIALIZED) {
                 throw new Exception("recorder was not initialized");
             }

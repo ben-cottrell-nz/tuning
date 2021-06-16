@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tuning</string>
+    <string name="restart_audio_engine">Restart Audio Engine</string>
 </resources>

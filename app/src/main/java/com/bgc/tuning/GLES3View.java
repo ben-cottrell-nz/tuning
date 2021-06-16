@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
+import android.util.AttributeSet;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -11,6 +12,9 @@ import javax.microedition.khronos.opengles.GL10;
 public class GLES3View extends GLSurfaceView {
     private static final String TAG = "GLES3JNI";
     private static final boolean DEBUG = true;
+    public GLES3View(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     public GLES3View(Context context) {
         super(context);
