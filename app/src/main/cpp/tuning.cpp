@@ -29,9 +29,9 @@ static fftw_complex *fft_output;
 static fftw_plan my_plan;
 static double* g_buffer;
 static std::string g_ns;
-static std::string g_fs;
-static double g_mfb;
-static double needle_pitch_offset = 0;
+[[maybe_unused]] static std::string g_fs;
+static double g_maxFreqBin;
+static double g_needle_pitch_offset = 0;
 // draw tracker line with position relative to center
 void drawTracker(NVGcontext* vg, float position=0)
 {
@@ -384,7 +384,7 @@ Java_com_bgc_tuning_TuningLib_redraw(JNIEnv *env, jobject thiz) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     nvgBeginFrame(nvgContext, 512, 512, 1.0);
     drawTuner2(nvgContext);
-    drawNeedle(nvgContext, needle_pitch_offset);
+    drawNeedle(nvgContext, g_needle_pitch_offset);
     //drawTracker(nvgContext, 0);
     drawNoteLetter(nvgContext, g_ns.c_str(), 126, 596);
     nvgEndFrame(nvgContext);
@@ -412,28 +412,28 @@ Java_com_bgc_tuning_TuningLib_updateFFT(JNIEnv *env, jclass clazz, jshortArray b
     }
     fftw_execute(my_plan);
     double bg = 0;
-    double bs = (double)44100 / BUFFER_LENGTH;
+    double freqBinSize = (double)44100 / BUFFER_LENGTH;
     double b = 0;
-    g_mfb = 0;
+    g_maxFreqBin = 0;
     for (i=0; i<BUFFER_LENGTH;i++) {
-        double f = sqrt(pow(fft_output[i][0], 2) + pow(fft_output[i][1],
-                                                       2));
-        if (f > bg) {
-            bg = f;
-            g_mfb = b;
+        double freq = sqrt(pow(fft_output[i][0], 2) + pow(fft_output[i][1],
+                                                          2));
+        if (freq > bg) {
+            bg = freq;
+            g_maxFreqBin = b;
         }
-        b += bs;
+        b += freqBinSize;
     }
     std::ostringstream strs;
-    const int MAX_FREQ_VARIANCE = bs;
+    const int MAX_FREQ_VARIANCE = freqBinSize;
     bool foundPitch = false;
     for (i=0; i < sizeof(MIDI_NOTES) / sizeof(MidiNote); i++) {
-        if (g_mfb > MIDI_NOTES[i].freq - MAX_FREQ_VARIANCE && g_mfb < MIDI_NOTES[i].freq +
-        MAX_FREQ_VARIANCE) {
+        if (g_maxFreqBin > MIDI_NOTES[i].freq - MAX_FREQ_VARIANCE && g_maxFreqBin < MIDI_NOTES[i].freq +
+                                                                                    MAX_FREQ_VARIANCE) {
             foundPitch = true;
             strs << MIDI_NOTES[i].note;
-            needle_pitch_offset = (g_mfb - g_mfb-MIDI_NOTES[i].freq) / (MAX_FREQ_VARIANCE);
-            __android_log_print(ANDROID_LOG_INFO, "TAG", "needle_pitch_offset=%f", needle_pitch_offset);
+            g_needle_pitch_offset = (g_maxFreqBin - g_maxFreqBin - MIDI_NOTES[i].freq) / (MAX_FREQ_VARIANCE);
+            __android_log_print(ANDROID_LOG_INFO, "TAG", "g_needle_pitch_offset=%f", g_needle_pitch_offset);
             break;
         }
     }
@@ -446,6 +446,6 @@ Java_com_bgc_tuning_TuningLib_updateFFT(JNIEnv *env, jclass clazz, jshortArray b
     strs.clear();
 //    __android_log_print(ANDROID_LOG_INFO, "TAG", "%s", g_ns.c_str());
 //    drawNoteLetter(nvgContext, g_ns.c_str(), 0, 0);
-    __android_log_print(ANDROID_LOG_INFO, "TAG", "mfb=%f", g_mfb);
+    __android_log_print(ANDROID_LOG_INFO, "TAG", "mfb=%f", g_maxFreqBin);
 //    LOGI("mfb=", mfb);
 }
